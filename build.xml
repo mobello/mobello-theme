@@ -1,0 +1,134 @@
+<project name="Mobello theme" default="compile.all" basedir=".">
+  <description>
+    Mobello theme compile
+  </description>
+  <property name="jruby-version" value="1.6.7.2"/>
+  <property name="scssdir" value="${projectdir}\lib\resources\scss"/>
+  <property name="cssdir" value="${projectdir}\lib\resources\themes"/>
+  <!-- Select a CSS output mode. One of: nested, expanded, compact, compressed-->
+  <property name="output-style" value="compressed"/>
+  <path id="JRuby">
+    <!-- Location of JRuby jar file -->
+    <fileset file="lib/jruby-complete-${jruby-version}.jar"/>
+  </path>
+  <target name="install.library" depends="download.jruby,install.sass,install.compass">
+    <description>jruby downalod, sass, compass install</description>
+  </target>
+  <target name="download.jruby" description="download.jruby">
+    <mkdir dir="${basedir}/lib"/>
+    <mkdir dir="${basedir}/lib/gems"/>
+    <get src="http://jruby.org.s3.amazonaws.com/downloads/${jruby-version}/jruby-complete-${jruby-version}.jar" 
+        dest="lib"
+        verbose="true"
+        usetimestamp="true"/>
+  </target>
+  <target name="cleanup.gems" description="cleanup.gems">
+    <!-- this removes any obsoleted / previous version of all gems -->
+    <java classname="org.jruby.Main" fork="true" failonerror="true">
+      <classpath refid="JRuby" />
+      <env key="GEM_PATH" value="lib/gems" />
+      <env key="GEM_HOME" value="lib/gems" />
+      <arg value="-S" />
+      <arg value="gem" />
+      <arg value="cleanup" />
+    </java>
+  </target>
+  <target name="install.sass" description="install.sass">
+    <!-- this updates the gems on the system -->
+    <java classname="org.jruby.Main" fork="true" failonerror="true">
+      <classpath refid="JRuby" />
+      <env key="GEM_PATH" value="lib/gems" />
+      <env key="GEM_HOME" value="lib/gems" />
+      <arg value="-S" />
+      <arg value="gem" />
+      <arg value="install" />
+      <arg value="sass" />
+      <arg value="--pre" />
+    </java>
+    <antcall target="cleanup.gems">
+    </antcall>
+  </target>
+  <target name="install.compass" description="update the installed gems">
+    <java classname="org.jruby.Main" fork="true" failonerror="true">
+      <classpath refid="JRuby" />
+      <env key="GEM_PATH" value="lib/gems" />
+      <env key="GEM_HOME" value="lib/gems" />
+      <arg value="-S" />
+      <arg value="gem" />
+      <arg value="update" />
+      <arg value="--system" />
+    </java>
+    <!-- this updates the gems on the system -->
+    <java classname="org.jruby.Main" fork="true" failonerror="true">
+      <classpath refid="JRuby" />
+      <env key="GEM_PATH" value="lib/gems" />
+      <env key="GEM_HOME" value="lib/gems" />
+      <arg value="-S" />
+      <arg value="gem" />
+      <arg value="install" />
+      <arg value="compass" />
+    </java>
+    <antcall target="cleanup.gems">
+    </antcall>
+  </target>
+  <target name="compile.all" depends="compile.base, compile.default, compile.simple, compile.ios, compile.custom">
+    <description>
+      default, simple, ios, custom theme compile
+    </description>
+  </target>
+  <target name="compile.theme" description="compile">
+    <echo message="project path: ${projectdir}">
+    </echo>
+    <echo message="theme path: ${projectdir}\lib\resources\scss">
+    </echo>
+    <echo message="theme name: ${theme}">
+    </echo>
+    <java classname="org.jruby.Main" fork="true" failonerror="true">
+      <classpath refid="JRuby" />
+      <env key="GEM_PATH" value="lib/gems" />
+      <env key="GEM_HOME" value="lib/gems" />
+      <arg value="conf/compile.rb" />
+      <arg value="compile" />
+      <arg value="${scssdir}/themes/${theme}" />
+      <arg value="${output-style}" />
+      <!-- Select a CSS output mode. One of: nested, expanded, compact, compressed -->
+    </java>
+    <move file="${scssdir}/themes/${theme}/stylesheets/tau.css" 
+      tofile="${cssdir}/${theme}/tau.css"  overwrite="true" encoding="UTF-8" outputencoding="UTF-8">
+    </move>
+    <delete dir="${scssdir}/themes/${theme}/stylesheets">
+    </delete>
+  </target>
+  <target name="compile.base" description="compile">
+    <java classname="org.jruby.Main" fork="true" failonerror="true">
+      <classpath refid="JRuby" />
+      <env key="GEM_PATH" value="lib/gems" />
+      <env key="GEM_HOME" value="lib/gems" />
+      <arg value="conf/compile.rb" />
+      <arg value="compile" />
+      <arg value="${scssdir}/base" />
+      <arg value="${output-style}" />
+      <!-- Select a CSS output mode. One of: nested, expanded, compact, compressed -->
+    </java>
+  </target>
+  <target name="compile.default" description="compile">
+    <antcall target="compile.theme">
+      <param name="theme" value="default"/>
+    </antcall>
+  </target>
+  <target name="compile.simple" description="compile">
+    <antcall target="compile.theme">
+      <param name="theme" value="simple"/>
+    </antcall>
+  </target>
+  <target name="compile.ios" description="compile">
+    <antcall target="compile.theme">
+      <param name="theme" value="ios"/>
+    </antcall>
+  </target>
+  <target name="compile.custom" description="compile">
+    <antcall target="compile.theme">
+      <param name="theme" value="${custom}"/>
+    </antcall>
+  </target>
+</project>
