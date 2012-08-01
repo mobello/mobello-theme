@@ -3,20 +3,20 @@
     Mobello theme compile
   </description>
   <property name="jruby-version" value="1.6.7.2"/>
-  <property name="scssdir" value="${projectdir}\lib\resources\scss"/>
-  <property name="cssdir" value="${projectdir}\lib\resources\themes"/>
+  <property name="scssdir" value="${projectdir}${file.separator}lib${file.separator}resources${file.separator}scss"/>
+  <property name="cssdir" value="${projectdir}${file.separator}lib${file.separator}resources${file.separator}themes"/>
   <!-- Select a CSS output mode. One of: nested, expanded, compact, compressed-->
   <property name="output-style" value="compressed"/>
   <path id="JRuby">
     <!-- Location of JRuby jar file -->
-    <fileset file="lib/jruby-complete-${jruby-version}.jar"/>
+    <fileset file="lib${file.separator}jruby-complete-${jruby-version}.jar"/>
   </path>
   <target name="install.library" depends="download.jruby,install.sass,install.compass">
     <description>jruby downalod, sass, compass install</description>
   </target>
   <target name="download.jruby" description="download.jruby">
-    <mkdir dir="${basedir}/lib"/>
-    <mkdir dir="${basedir}/lib/gems"/>
+    <mkdir dir="${basedir}${file.separator}lib"/>
+    <mkdir dir="${basedir}${file.separator}lib${file.separator}gems"/>
     <get src="http://jruby.org.s3.amazonaws.com/downloads/${jruby-version}/jruby-complete-${jruby-version}.jar" 
         dest="lib"
         verbose="true"
@@ -79,7 +79,7 @@
   <target name="compile.theme" description="compile">
     <echo message="project path: ${projectdir}">
     </echo>
-    <echo message="theme path: ${projectdir}\lib\resources\scss">
+    <echo message="theme path: ${projectdir}${file.separator}lib${file.separator}resources${file.separator}scss">
     </echo>
     <echo message="theme name: ${theme}">
     </echo>
@@ -93,10 +93,10 @@
       <arg value="${output-style}" />
       <!-- Select a CSS output mode. One of: nested, expanded, compact, compressed -->
     </java>
-    <move file="${scssdir}/themes/${theme}/stylesheets/tau.css" 
-      tofile="${cssdir}/${theme}/tau.css"  overwrite="true" encoding="UTF-8" outputencoding="UTF-8">
+    <move file="${scssdir}${file.separator}themes${file.separator}${theme}${file.separator}stylesheets${file.separator}tau.css" 
+      tofile="${cssdir}${file.separator}${theme}${file.separator}tau.css"  overwrite="true" encoding="UTF-8" outputencoding="UTF-8">
     </move>
-    <delete dir="${scssdir}/themes/${theme}/stylesheets">
+    <delete dir="${scssdir}${file.separator}themes${file.separator}${theme}${file.separator}stylesheets">
     </delete>
   </target>
   <target name="compile.base" description="compile">
@@ -110,6 +110,11 @@
       <arg value="${output-style}" />
       <!-- Select a CSS output mode. One of: nested, expanded, compact, compressed -->
     </java>
+    <move file="${scssdir}${file.separator}base${file.separator}stylesheets${file.separator}base.css" 
+      tofile="${cssdir}${file.separator}..${file.separator}base.css"  overwrite="true" encoding="UTF-8" outputencoding="UTF-8">
+    </move>
+    <delete dir="${scssdir}${file.separator}base${file.separator}stylesheets">
+    </delete>
   </target>
   <target name="compile.default" description="compile">
     <antcall target="compile.theme">
